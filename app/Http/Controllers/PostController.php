@@ -13,8 +13,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with('user')
-            ->where('is_draft', false)
-            ->where('published_at', '<=', now())
+            ->active()
             ->paginate(20);
 
         return response()->json($posts);
@@ -37,7 +36,7 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'is_draft' => ['boolean'],
+            'is_draft' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
         ]);
 
@@ -77,9 +76,10 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        // dd('edit');
-        // Only the post edit author can access this route
-        abort_if(auth()->id() !== $post->user_id, 403);
+        abort_if(
+            $post->user_id !== auth()->id(),
+            403
+        );
 
         return 'posts.edit';
     }
@@ -90,7 +90,10 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         // Only the post author can update the post
-        abort_if(auth()->id() !== $post->user_id, 403); // 403(rejected)
+        abort_if(
+            $post->user_id !== auth()->id(),
+            403
+        );
 
         // Validation request data
         $validated = $request->validate([
@@ -116,14 +119,13 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         // Only the post author can delete the post
-        abort_if(auth()->id() !== $post->user_id, 403); // 403(rejected)
-
+        if ($post->user_id !== auth()->id()) {
+            return response()->json([], 403);
+        }
         // Delete the post
         $post->delete();
 
         // Return a suceessfull JSON response
-        return response()->json([
-            'message' => 'Post Deleted Successfully',
-        ], 204);
+        return response()->noContent();
     }
 }

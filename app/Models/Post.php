@@ -15,8 +15,8 @@ class Post extends Model
             'user_id',
             'title',
             'content',
-            // 'is_draft',
-            // 'published_at',
+            'is_draft',
+            'published_at',
         ];
 
     protected $casts = [
