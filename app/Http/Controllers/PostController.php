@@ -50,10 +50,7 @@ class PostController extends Controller
             'published_at' => $validated['published_at'] ?? now(),
         ]);
 
-        return response()->json([
-            'message' => 'Post created successfully',
-            'post' => $post,
-        ], 201);
+        return response()->json($post, 201);
 
     }
 
@@ -67,7 +64,9 @@ class PostController extends Controller
             ->active()
             ->findOrFail($id);
 
-        return response()->json($post);
+        return response()->json(
+            $post->load('user')
+        );
 
     }
 
@@ -99,7 +98,7 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'is_draft' => ['boolean'],
+            'is_draft' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
         ]);
 
@@ -107,10 +106,7 @@ class PostController extends Controller
         $post->update($validated);
 
         // Return a suceessfull JSON response
-        return response()->json([
-            'message' => 'Post Updated Successfully',
-            'post' => $post,
-        ], 200);
+        return response()->json($post, 200);
     }
 
     /**
