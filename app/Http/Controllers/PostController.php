@@ -65,9 +65,7 @@ class PostController extends Controller
             ->active()
             ->findOrFail($id);
 
-        return response()->json(
-            $post->load('user')
-        );
+        return response()->json($post);
 
     }
 
