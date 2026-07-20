@@ -94,12 +94,15 @@ class PostController extends Controller
             403
         );
 
+        // Check if the request method is PATCH (true = PATCH, false = PUT)
+        $isPatch = $request->isMethod('patch');
+
         // Validation request data
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
+            'title' => [$isPatch ? 'sometimes' : 'required', 'string', 'max:255'],
+            'content' => [$isPatch ? 'sometimes' : 'required', 'string'],
             'is_draft' => ['sometimes', 'boolean'],
-            'published_at' => ['nullable', 'date'],
+            'published_at' => ['sometimes', 'nullable', 'date'],
         ]);
 
         // Update the post
