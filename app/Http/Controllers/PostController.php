@@ -12,8 +12,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('user')
-            ->active()
+        $posts = Post::active()
+            ->with('user')
             ->paginate(20);
 
         return response()->json($posts);
@@ -106,7 +106,7 @@ class PostController extends Controller
         $post->update($validated);
 
         // Return a suceessfull JSON response
-        return response()->json($post, 200);
+        return response()->json($post->fresh());
     }
 
     /**
@@ -115,9 +115,10 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         // Only the post author can delete the post
-        if ($post->user_id !== auth()->id()) {
-            return response()->json([], 403);
-        }
+        abort_if(
+            $post->user_id !== auth()->id(),
+            403
+        );
         // Delete the post
         $post->delete();
 
