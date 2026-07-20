@@ -353,8 +353,8 @@ class PostTest extends TestCase
         $response = $this->actingAs($user)
             ->delete("/posts/{$post->id}");
 
-        // Verify that the request returns HTTP 200 (OK)
-        $response->assertStatus(200);
+        // Verify that the request returns HTTP 204 (No Content)
+        $response->assertNoContent();
 
         // Verify that the post no longer exists
         $this->assertDatabaseMissing('posts', [

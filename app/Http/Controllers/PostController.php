@@ -14,6 +14,7 @@ class PostController extends Controller
     {
         $posts = Post::active()
             ->with('user')
+            ->latest('published_at')
             ->paginate(20);
 
         return response()->json($posts);
